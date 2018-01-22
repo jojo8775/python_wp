@@ -13,37 +13,63 @@ print("hour : ", hrs)
 mins = int(argv[2])
 print("min : ", mins)
 
-print("Alarm set at ", hrs, " : ", mins)
-
 def getSecondsFromTime(t1):
     val = (t1.hour * 3600)
     val += (t1.minute * 60)
     val += t1.second
     return val
 
-currentTime = datetime.datetime.now().time()
-hourAdjustment = 24 - currentTime.hour if hrs < currentTime.hour else 0
-sec1 = getSecondsFromTime(currentTime)
+def splitTime(sec):
+    list = []
+    # days
+    list.append(int(sec / (24 * 3600)))
+    sec %= (24 * 3600)
+    # hours
+    list.append(int(sec / 3600))
+    sec %= 3600
+    # mins
+    list.append(int(sec / 60))
+    sec %= 60
+    # seconds
+    list.append(sec)
+    return list
 
-targetTime = datetime.time(hour = (hrs + hourAdjustment), minute = mins)
-sec2 = getSecondsFromTime(targetTime)
+def printRemaingTime(list):
+    d,h,m,s = list
+    remaingTime = ""
+    if(d > 0) :
+        remaingTime += (str(d) + "d ")
+    if(h > 0) :
+        remaingTime += (str(h) + "h ")
+    if(m > 0) :
+        remaingTime += (str(m) + "m ")        
+
+    remaingTime += (str(s) + "s ")
+    print("Remaining time : ", remaingTime) 
+    return       
+
+
+currentTime = datetime.datetime.now().time()
+hrs = 24 + hrs if hrs < currentTime.hour else hrs
+
+target = (hrs * 3600 ) + (mins * 60);
+sofar = getSecondsFromTime(currentTime)
+
+printRemaingTime(splitTime(target - sofar))
 
 count = 0
-while(sec1 < sec2) :
+while(sofar < target) :
+    # debug
+    #print("target : ", target)
+    #print("sofar : ", sofar)
+
     count += 1
-    if(count > 2):
-        remainingSecs = (sec2 - sec1)
-        remainingHrs = int(remainingSecs / 3600)
-        remainingSecs %= 3600
-        remainingMins = int(remainingSecs / 60)
-        remainingSecs %= 60
-        remaingTime = datetime.time(hour = remainingHrs, minute = remainingMins, second = remainingSecs)
-        
-        print("time left for alarm : ", str(remaingTime))
+    if(count > 9):
+        printRemaingTime(splitTime(target - sofar))
         count = 0
             
     Time.sleep(60)
-    sec1 = getSecondsFromTime(datetime.datetime.now().time())
+    sofar += 60
     
 print("Time for some music on Iheart rario!!")
 os.system("mplayer -nocache -afm ffmpeg http://c1icyelb.prod.playlists.ihrhls.com/4257_icy")
