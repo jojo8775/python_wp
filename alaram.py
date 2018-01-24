@@ -1,6 +1,7 @@
 import datetime
 import time as Time
 import os
+import rf_trigger
 from sys import argv
 #arg1, arg2, arg3 = argv
 
@@ -12,6 +13,8 @@ print("hour : ", hrs)
 
 mins = int(argv[2])
 print("min : ", mins)
+
+switchOnHeater = argv[3]
 
 def getSecondsFromTime(t1):
     val = (t1.hour * 3600)
@@ -50,18 +53,25 @@ def printRemaingTime(list):
 
 
 currentTime = datetime.datetime.now().time()
-hrs = 24 + hrs if hrs < currentTime.hour else hrs
-
-target = (hrs * 3600 ) + (mins * 60);
 sofar = getSecondsFromTime(currentTime)
 
+target = (hrs * 3600 ) + (mins * 60);
+if(target < sofar) :
+    target += (24 * 3600) # adding another day
+
+heaterTriggerTime = target - 3600
+
 printRemaingTime(splitTime(target - sofar))
+
+# debug
+# print("target : ", target)
+# print("sofar : ", sofar)
 
 count = 0
 while(sofar < target) :
     # debug
-    #print("target : ", target)
-    #print("sofar : ", sofar)
+    # print("target : ", target)
+    # print("sofar : ", sofar)
 
     count += 1
     if(count > 9):
@@ -70,6 +80,10 @@ while(sofar < target) :
             
     Time.sleep(60)
     sofar += 60
+    
+    if(switchOnHeater == 'yes' and sofar > heaterTriggerTime) :
+        rf_trigger.trigger('on')
+        switchOnHeater = 'no'
     
 print("Time for some music on Iheart rario!!")
 os.system("mplayer -nocache -afm ffmpeg http://c1icyelb.prod.playlists.ihrhls.com/4257_icy")
