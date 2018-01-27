@@ -2,6 +2,7 @@
 from pexpect import pxssh
 
 def trigger(mode) :
+    #raise Exception("My wish")
     s = pxssh.pxssh()
     if not s.login('192.168.0.15','pi','jojo') :
         print("SSH Failed may be host is down or have changed")

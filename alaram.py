@@ -2,10 +2,12 @@ import datetime
 import time as Time
 import os
 import rf_trigger
-from sys import argv
+import sys
+#from sys import argv
 #arg1, arg2, arg3 = argv
 
 #print("first argument : ", arg1)
+argv = sys.argv
 print("Number of argument passed : ", len(argv))
 
 hrs = int(argv[1])
@@ -77,13 +79,21 @@ while(sofar < target) :
     if(count > 9):
         printRemaingTime(splitTime(target - sofar))
         count = 0
+
+    if(switchOnHeater == 'yes' and sofar > heaterTriggerTime) :
+        try :
+            rf_trigger.trigger('on')
+        except :
+            e = sys.exc_info()
+            print(str(e))
+        finally :
+            switchOnHeater = 'no'
             
     Time.sleep(60)
     sofar += 60
     
-    if(switchOnHeater == 'yes' and sofar > heaterTriggerTime) :
-        rf_trigger.trigger('on')
-        switchOnHeater = 'no'
+    
+               
     
 print("Time for some music on Iheart rario!!")
 os.system("mplayer -nocache -afm ffmpeg http://c1icyelb.prod.playlists.ihrhls.com/4257_icy")
